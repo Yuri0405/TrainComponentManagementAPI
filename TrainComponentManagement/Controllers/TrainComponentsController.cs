@@ -10,12 +10,10 @@ namespace TrainComponentManagement.Controllers
     [ApiController]
     public class TrainComponentsController : ControllerBase
     {
-        private readonly TrainComponentDbContext _context;
-        private readonly TrainComponentService _componentService;
+        private readonly ITrainComponentService  _componentService;
 
-        public TrainComponentsController(TrainComponentDbContext context, TrainComponentService componentService)
+        public TrainComponentsController(ITrainComponentService  componentService)
         {
-            _context = context;
             _componentService = componentService;
         }
 

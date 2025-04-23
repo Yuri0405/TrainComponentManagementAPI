@@ -17,6 +17,8 @@ public static class Program
         // --- Add DbContext ---
         builder.Services.AddDbContext<TrainComponentDbContext>(options =>
             options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))); // Get connection string from appsettings.json
+
+        builder.Services.AddScoped<ITrainComponentService, TrainComponentService>();
         
         var app = builder.Build();
 
