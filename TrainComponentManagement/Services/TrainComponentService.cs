@@ -125,8 +125,27 @@ public class TrainComponentService: ITrainComponentService
 
     public async Task<bool> UpdateComponentQuantityAsync(int id, UpdateQuantityDto quantityDto)
     {
-        await Task.CompletedTask; 
-        throw new NotImplementedException("Functionality to update component quantity is not yet implemented.");
+        var component = await _context.TrainComponents.FindAsync(id);
+        
+        if (component == null)
+        {
+            throw new KeyNotFoundException($"Component with Id {id} not found."); 
+        }
+        
+        if (!component.CanAssignQuantity)
+        {
+            throw new InvalidOperationException($"Quantity cannot be assigned to component type '{component.Name}' (ID: {id})."); // [cite: 19] Handles error condition
+        }
+        
+        if (quantityDto.Quantity <= 0)
+        {
+            throw new ArgumentException("Quantity must be a positive integer.", nameof(quantityDto.Quantity)); // [cite: 19] Handles error condition
+        }
+        
+        component.Quantity = quantityDto.Quantity;
+        
+        await _context.SaveChangesAsync();
+        return true; // Update successful
     }
     
     public async Task<bool> DeleteComponentAsync(int id)

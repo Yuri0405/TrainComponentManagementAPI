@@ -111,6 +111,41 @@ namespace TrainComponentManagement.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please try again later.");
             }
         }
+        
+        [HttpPatch("{id}/quantity")] // Handles PATCH /api/traincomponents/{id}/quantity [cite: 5]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdateTrainComponentQuantity(int id, [FromBody] UpdateQuantityDto updateQuantityDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // Returns 400
+            }
+
+            try
+            {
+                await _componentService.UpdateComponentQuantityAsync(id, updateQuantityDto); // Calls the dedicated service method [cite: 8]
+                return NoContent(); 
+            }
+            catch (KeyNotFoundException ex) // Handle not found from service [cite: 19]
+            {
+                return NotFound(new { message = ex.Message }); // Returns 404
+            }
+            catch (InvalidOperationException ex) 
+            {
+                return BadRequest(new { message = ex.Message }); // Returns 400
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message }); // Returns 400
+            }
+            catch (Exception ex) // Catch unexpected errors [cite: 19]
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred."); // Returns 500
+            }
+        }
 
         [HttpDelete("{id}")] // Handles DELETE requests to /api/traincomponents/{id}
         [ProducesResponseType(StatusCodes.Status204NoContent)]
