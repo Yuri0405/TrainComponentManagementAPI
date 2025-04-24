@@ -79,6 +79,39 @@ namespace TrainComponentManagement.Controllers
             }
         }
 
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(TrainComponentDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]                          
+        [ProducesResponseType(StatusCodes.Status404NotFound)]                           
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]  
+        public async Task<ActionResult<TrainComponentDto>> UpdateTrainComponent(int id, [FromBody] UpdateTrainComponentDto updateDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                // If DTO validation fails, return 400 Bad Request with details
+                return BadRequest(ModelState);
+            }
+            try
+            {
+                var updatedComponent = await _componentService.UpdateComponentAsync(id, updateDto);
+                return Ok(updatedComponent);
+            }
+            catch (KeyNotFoundException ex) 
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex) // Catch specific rule violation exception from service
+            {
+                // If a business rule was violated (e.g., quantity issue), return 400 Bad Request
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex) // Catch any other unexpected errors
+            {
+                // Return 500 Internal Server Error for generic failures
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred. Please try again later.");
+            }
+        }
+
         [HttpDelete("{id}")] // Handles DELETE requests to /api/traincomponents/{id}
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

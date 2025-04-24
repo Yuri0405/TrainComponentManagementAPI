@@ -84,8 +84,43 @@ public class TrainComponentService: ITrainComponentService
     
     public async Task<TrainComponentDto> UpdateComponentAsync(int id, UpdateTrainComponentDto updateDto)
     {
-        await Task.CompletedTask;
-        throw new NotImplementedException("Functionality to update component details is not yet implemented.");
+        var componentToUpdate = await _context.TrainComponents.FindAsync(id);
+
+        if (componentToUpdate == null)
+        {
+            throw new KeyNotFoundException($"Component with Id {id} not found for update.");
+        }
+        
+        componentToUpdate.Name = updateDto.Name;
+        componentToUpdate.CanAssignQuantity = updateDto.CanAssignQuantity;
+
+        if (componentToUpdate.CanAssignQuantity)
+        {
+            if(updateDto.Quantity.HasValue)
+            {
+                componentToUpdate.Quantity = updateDto.Quantity.Value;
+            }
+            else
+            {
+                //if quantity alowed but not provided
+                 componentToUpdate.Quantity = 0;
+            }
+        }
+        else
+        {
+            componentToUpdate.Quantity = null;
+        }
+        
+        await _context.SaveChangesAsync(); // Persist changes to the database
+        
+        return new TrainComponentDto
+        {
+            Id = componentToUpdate.Id,
+            Name = componentToUpdate.Name,
+            UniqueNumber = componentToUpdate.UniqueNumber, // Not updated by this method
+            CanAssignQuantity = componentToUpdate.CanAssignQuantity,
+            Quantity = componentToUpdate.Quantity
+        };
     }
 
     public async Task<bool> UpdateComponentQuantityAsync(int id, UpdateQuantityDto quantityDto)
