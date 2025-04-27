@@ -9,6 +9,18 @@ public static class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(name: "_myAllowSpecificOrigins",
+                policy =>
+                {
+                    policy.WithOrigins("http://localhost:4200") // Allow your Angular app's origin
+                        .AllowAnyHeader() // Allow any standard header
+                        .AllowAnyMethod() // Allow common HTTP methods (GET, POST, PUT, PATCH, DELETE etc.)
+                        .WithExposedHeaders("X-Pagination"); // Expose the custom pagination header if you added it
+                });
+        });
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -28,7 +40,8 @@ public static class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
+        // 3. Use CORS middleware - **IMPORTANT: Place it BEFORE UseAuthorization and MapControllers**
+        app.UseCors("_myAllowSpecificOrigins"); // Apply the policy you defined
         app.MapControllers();
 
         app.Run();
