@@ -14,5 +14,7 @@ public class CreateTrainComponentDto
 
     public bool CanAssignQuantity { get; set; }
 
-    // Quantity might be set separately or initialized based on CanAssignQuantity
+    [Required]
+    [Range(1, int.MaxValue, ErrorMessage = "Quantity must be a positive integer.")] // Ensures positive integer [cite: 11]
+    public int Quantity { get; set; }
 }

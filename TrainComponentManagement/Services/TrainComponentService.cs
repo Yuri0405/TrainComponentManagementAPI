@@ -66,7 +66,7 @@ public class TrainComponentService: ITrainComponentService
             Name = createDto.Name,
             UniqueNumber = createDto.UniqueNumber,
             CanAssignQuantity = createDto.CanAssignQuantity,
-            Quantity = createDto.CanAssignQuantity ? 0 : null
+            Quantity = createDto.CanAssignQuantity ? createDto.Quantity : null
         };
         
         _context.TrainComponents.Add(componentEntity);
